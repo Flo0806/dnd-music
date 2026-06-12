@@ -19,7 +19,10 @@ export interface Folder {
   trackCount: number // total tracks including descendants
 }
 
-export type LoopMode = 'queue' | 'track' | 'off'
+// 'folder' = stay in the current folder, repeat at end (default — avoids spoilers)
+// 'one'    = repeat the single current song
+// 'all'    = play straight through the whole library, crossing folders
+export type LoopMode = 'folder' | 'one' | 'all'
 
 const AUDIO_EXT = new Set([
   'mp3', 'm4a', 'aac', 'flac', 'wav', 'ogg', 'oga', 'opus', 'wma', 'webm', 'mp4', 'aif', 'aiff',
@@ -73,7 +76,7 @@ const favorites = reactive(new Set<string>())
 const query = ref('')
 
 const random = ref(false)
-const loopMode = ref<LoopMode>('queue')
+const loopMode = ref<LoopMode>('folder')
 const crossfadeEnabled = ref(true)
 const crossfadeSec = ref(4)
 
@@ -159,7 +162,10 @@ function loadSettings() {
     if (!s) return
     if (typeof s.volume === 'number') volume.value = clamp(s.volume)
     if (typeof s.random === 'boolean') random.value = s.random
-    if (['queue', 'track', 'off'].includes(s.loopMode)) loopMode.value = s.loopMode
+    // Accept current modes; migrate older saved values.
+    if (['folder', 'one', 'all'].includes(s.loopMode)) loopMode.value = s.loopMode
+    else if (s.loopMode === 'track') loopMode.value = 'one'
+    else if (s.loopMode === 'queue' || s.loopMode === 'off') loopMode.value = 'folder'
     if (typeof s.crossfadeEnabled === 'boolean') crossfadeEnabled.value = s.crossfadeEnabled
     if (typeof s.crossfadeSec === 'number') crossfadeSec.value = s.crossfadeSec
   } catch {
@@ -293,17 +299,17 @@ function loadActive(track: Track, autoplay: boolean) {
 
 /** Peek the next track for a seamless crossfade (null = no clean next). */
 function peekNext(): { track: Track; index: number } | null {
-  if (loopMode.value === 'track') return null
+  if (loopMode.value === 'one') return null
   const idx = currentIndex.value + 1
   if (idx < playOrder.length) return { track: playOrder[idx], index: idx }
-  if (loopMode.value === 'off') return null
   if (random.value) return null // reshuffle seam handled by onTrackEnded (no crossfade)
+  // 'folder' loops the folder, 'all' loops the library — both wrap to the start.
   return playOrder.length ? { track: playOrder[0], index: 0 } : null
 }
 
 function maybeCrossfade() {
   if (!crossfadeEnabled.value || crossfading) return
-  if (loopMode.value === 'track') return
+  if (loopMode.value === 'one') return
   const d = duration.value
   if (!d || d <= crossfadeSec.value + 0.5) return
   if (d - currentTime.value > crossfadeSec.value) return
@@ -328,7 +334,7 @@ function startCrossfade(n: { track: Track; index: number }) {
 }
 
 function onTrackEnded() {
-  if (loopMode.value === 'track') {
+  if (loopMode.value === 'one') {
     const el = activeEl()
     el.currentTime = 0
     el.play()
@@ -573,6 +579,11 @@ async function init() {
 }
 
 function playTrack(track: Track) {
+  // Default ('folder'/'one'): keep the queue inside the song's own folder so
+  // playback never bleeds into the next folder. 'all' plays the whole library.
+  const root = rootFolder.value
+  scopeFolder.value = loopMode.value === 'all' || !root ? null : findFolder(root, track.folderPath)
+  buildOrder()
   let idx = playOrder.findIndex((t) => t.id === track.id)
   if (idx < 0) {
     scopeFolder.value = null
@@ -621,14 +632,13 @@ function togglePlay() {
   }
 }
 
+// auto = triggered by track end (vs. a manual Next press). Both wrap the
+// current scope: 'folder' repeats the folder, 'all' repeats the library.
 function next(auto = false) {
+  void auto
   if (!playOrder.length) return
   let idx = currentIndex.value + 1
   if (idx >= playOrder.length) {
-    if (auto && loopMode.value === 'off') {
-      activeEl().pause()
-      return
-    }
     if (random.value) buildOrder()
     idx = 0
   }

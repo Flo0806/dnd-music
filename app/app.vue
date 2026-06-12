@@ -11,6 +11,7 @@ const {
   canReconnect,
   hasLibrary,
   random,
+  loopMode,
   query,
   scenes,
   crossfadeEnabled,
@@ -38,6 +39,24 @@ const {
 } = useMusic()
 
 const searchInput = ref<HTMLInputElement | null>(null)
+
+const loopLabel = computed(() =>
+  loopMode.value === 'folder'
+    ? 'Ordner wiederholen'
+    : loopMode.value === 'one'
+      ? 'Song wiederholen'
+      : 'Alle durchspielen',
+)
+const loopIcon = computed(() =>
+  loopMode.value === 'one' ? 'loopOne' : loopMode.value === 'folder' ? 'repeatFolder' : 'loop',
+)
+const loopHint = computed(() =>
+  loopMode.value === 'folder'
+    ? 'Bleibt im aktuellen Ordner und wiederholt — wechselt nicht selbst zum nächsten (L)'
+    : loopMode.value === 'one'
+      ? 'Wiederholt nur den aktuellen Song (L)'
+      : 'Spielt über Ordnergrenzen hinweg durch die ganze Bibliothek (L)',
+)
 
 const q = computed(() => query.value.trim().toLowerCase())
 const filteredChildren = computed(() => {
@@ -166,6 +185,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       </div>
 
       <div class="tools">
+        <button
+          class="btn ghost compact"
+          :class="{ on: loopMode !== 'all' }"
+          :title="loopHint"
+          @click="cycleLoop"
+        >
+          <AppIcon :name="loopIcon" :size="16" />
+          <span>{{ loopLabel }}</span>
+        </button>
+        <span class="divider" />
         <button
           class="btn ghost compact"
           :class="{ on: crossfadeEnabled }"

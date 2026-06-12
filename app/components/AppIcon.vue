@@ -16,6 +16,7 @@ const paths = {
   music: '<path d="M9 17.5a3.5 3.5 0 1 1-2-3.16V4l11-2v11.5a3.5 3.5 0 1 1-2-3.16V4.4L9 5.9v11.6Z"/>',
   loop: '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M17 2l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/>',
   loopOne: '<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></g><text x="12" y="15.5" font-size="9" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none">1</text>',
+  repeatFolder: '<g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5a1.5 1.5 0 0 1 1.5-1.5H8l2 2h7.5A1.5 1.5 0 0 1 19 9.5v8A1.5 1.5 0 0 1 17.5 19h-13A1.5 1.5 0 0 1 3 17.5v-10Z"/><path d="M8.5 14.2a3 3 0 0 1 5-2.1l1.2 1.1"/><path d="M14.8 11.1v2.3h-2.3"/><path d="M13.5 14.6a3 3 0 0 1-5 2.1L7.3 15.6"/><path d="M7.2 17.7v-2.3h2.3"/></g>',
   star: '<path d="m12 2.5 2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.5l-5.81 3.06 1.11-6.47-4.7-4.58 6.5-.95L12 2.5Z"/>',
   starOff: '<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="m12 2.5 2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.5l-5.81 3.06 1.11-6.47-4.7-4.58 6.5-.95L12 2.5Z"/>',
   search: '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14ZM20 20l-4-4"/>',

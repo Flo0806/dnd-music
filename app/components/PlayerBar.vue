@@ -21,11 +21,11 @@ const {
 } = useMusic()
 
 const loopTitle = computed(() =>
-  loopMode.value === 'queue'
-    ? 'Wiederholen: Liste'
-    : loopMode.value === 'track'
+  loopMode.value === 'folder'
+    ? 'Wiederholen: nur dieser Ordner'
+    : loopMode.value === 'one'
       ? 'Wiederholen: ein Song'
-      : 'Wiederholen: aus',
+      : 'Durchspielen: alle Ordner',
 )
 
 function fmt(s: number): string {
@@ -98,11 +98,11 @@ function toggleMute() {
         </button>
         <button
           class="ctl"
-          :class="{ on: loopMode !== 'off' }"
+          :class="{ on: loopMode !== 'all' }"
           :title="loopTitle"
           @click="cycleLoop"
         >
-          <AppIcon :name="loopMode === 'track' ? 'loopOne' : 'loop'" :size="18" />
+          <AppIcon :name="loopMode === 'one' ? 'loopOne' : loopMode === 'folder' ? 'repeatFolder' : 'loop'" :size="18" />
         </button>
       </div>
 
